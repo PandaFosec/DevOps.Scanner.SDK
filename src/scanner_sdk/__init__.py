@@ -17,7 +17,7 @@ from scanner_sdk.engine import (
     registered,
 )
 from scanner_sdk.risk import RISK_CODES, RISK_NAMES, risk_code
-from scanner_sdk.settings import Settings
+from scanner_sdk.settings import Settings, configure_settings, settings
 
 __all__ = [
     "Collection",
@@ -33,4 +33,6 @@ __all__ = [
     "RISK_CODES",
     "risk_code",
     "Settings",
+    "settings",
+    "configure_settings",
 ]

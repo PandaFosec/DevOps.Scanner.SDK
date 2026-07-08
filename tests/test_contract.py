@@ -47,3 +47,24 @@ def test_settings_protocol_is_structural():
 
     s: sdk.Settings = FakeSettings()               # structural — satisfies the Protocol
     assert s.zap_base_url.startswith("http")
+
+
+def test_settings_proxy_injection():
+    import pytest
+
+    import scanner_sdk.settings as st
+    st._SettingsProxy._impl = None                 # reset: unconfigured
+    with pytest.raises(RuntimeError):              # reading before configure is an error
+        _ = sdk.settings.zap_base_url
+
+    class Fake:
+        zap_base_url = "http://zap:8080"
+        zap_api_key = "secret"
+        templates_dir = "/t"
+        user_agent = "ua"
+        plan_timeout_min = 60
+        spider_max_duration_min = 5
+
+    sdk.configure_settings(Fake())                 # host installs concrete settings
+    assert sdk.settings.zap_base_url == "http://zap:8080"
+    assert sdk.settings.plan_timeout_min == 60
