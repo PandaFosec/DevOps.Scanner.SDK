@@ -52,8 +52,8 @@ def test_settings_protocol_is_structural():
 def test_settings_proxy_injection():
     import pytest
 
-    import scanner_sdk.settings as st
-    st._SettingsProxy._impl = None                 # reset: unconfigured
+    import scanner_sdk.config as cfg
+    cfg._SettingsProxy._impl = None                 # reset: unconfigured
     with pytest.raises(RuntimeError):              # reading before configure is an error
         _ = sdk.settings.zap_base_url
 
