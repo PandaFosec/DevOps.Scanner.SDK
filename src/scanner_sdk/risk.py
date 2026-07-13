@@ -3,6 +3,7 @@
 Codes 0-3 are ZAP's native riskcodes; 4 (Critical) is engine-agnostic headroom —
 ZAP never emits it, but Nuclei (and others) do. Higher code = more severe.
 """
+
 from __future__ import annotations
 
 RISK_NAMES = {0: "Informational", 1: "Low", 2: "Medium", 3: "High", 4: "Critical"}

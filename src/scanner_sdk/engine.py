@@ -10,6 +10,7 @@ Plugin-LOADING policy — which adapter modules to import, and from where — is
 host's concern, not the SDK's: the host imports its plugin modules (which
 self-register on import) and then reads them back via `get_engine`/`registered`.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -18,11 +19,11 @@ from typing import Any, Protocol
 
 @dataclass(frozen=True)
 class EngineMeta:
-    key: str                       # "zap", "nuclei"
-    name: str                      # "OWASP ZAP"
-    profiles: tuple[str, ...]      # engine scan modes (ZAP: baseline|full|api)
-    dd_scan_type: str              # DefectDojo native parser name
-    dd_artifact: str               # report file imported to DefectDojo
+    key: str  # "zap", "nuclei"
+    name: str  # "OWASP ZAP"
+    profiles: tuple[str, ...]  # engine scan modes (ZAP: baseline|full|api)
+    dd_scan_type: str  # DefectDojo native parser name
+    dd_artifact: str  # report file imported to DefectDojo
 
 
 @dataclass
@@ -34,7 +35,7 @@ class ScanRequest:
 
 
 @dataclass
-class RunHandle:                   # opaque engine bookkeeping (plan_id, pid, container id…)
+class RunHandle:  # opaque engine bookkeeping (plan_id, pid, container id…)
     id: str
     extra: dict[str, Any] = field(default_factory=dict)
 
@@ -42,25 +43,25 @@ class RunHandle:                   # opaque engine bookkeeping (plan_id, pid, co
 @dataclass
 class Progress:
     finished: bool
-    error: list[str]               # [] = ok
+    error: list[str]  # [] = ok
     raw: dict[str, Any]
 
 
 @dataclass
 class Collection:
-    summary: dict[str, Any]        # {counts, total, alerts}
-    process: dict[str, Any]        # crawl/telemetry for rendering + scan state
-    blocked: str | None = None     # engine "no meaningful coverage" reason → FAILED verdict
-    follow_ups: list["ScanRequest"] = field(default_factory=list)
+    summary: dict[str, Any]  # {counts, total, alerts}
+    process: dict[str, Any]  # crawl/telemetry for rendering + scan state
+    blocked: str | None = None  # engine "no meaningful coverage" reason → FAILED verdict
+    follow_ups: list[ScanRequest] = field(default_factory=list)
 
 
 class Engine(Protocol):
     meta: EngineMeta
+
     def healthcheck(self) -> str: ...
     def run(self, req: ScanRequest) -> RunHandle: ...
     def poll(self, h: RunHandle) -> Progress: ...
-    def collect(self, h: RunHandle, req: ScanRequest,
-                progress: dict[str, Any]) -> Collection: ...
+    def collect(self, h: RunHandle, req: ScanRequest, progress: dict[str, Any]) -> Collection: ...
 
 
 # --- Registry ------------------------------------------------------------- #

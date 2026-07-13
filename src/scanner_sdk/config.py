@@ -12,6 +12,7 @@ pieces:
   an adapter depend ONLY on the SDK — never on the orchestrator's settings module
   or a cross-repo import.
 """
+
 from __future__ import annotations
 
 from typing import Protocol
@@ -30,8 +31,9 @@ class _SettingsProxy:
     """A stable object adapters import once; attribute reads delegate to the
     host-injected concrete Settings. Reading before the host has configured it is
     a programming error (raises) rather than a silent `None`."""
+
     __slots__ = ()
-    _impl: Settings | None = None      # class-level; installed by configure_settings
+    _impl: Settings | None = None  # class-level; installed by configure_settings
 
     def __getattr__(self, name: str):
         impl = _SettingsProxy._impl

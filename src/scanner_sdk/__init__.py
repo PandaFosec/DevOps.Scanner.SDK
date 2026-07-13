@@ -5,6 +5,8 @@ Protocol + registry), the severity constants, and the settings read-interface â€
 shared by the orchestrator and every DevOps.Scanner.* engine adapter, so no
 adapter needs a cross-repo PYTHONPATH to import the core.
 """
+
+from scanner_sdk.config import Settings, configure_settings, settings
 from scanner_sdk.engine import (
     Collection,
     Engine,
@@ -17,7 +19,6 @@ from scanner_sdk.engine import (
     registered,
 )
 from scanner_sdk.risk import RISK_CODES, RISK_NAMES, risk_code
-from scanner_sdk.config import Settings, configure_settings, settings
 
 __all__ = [
     "Collection",

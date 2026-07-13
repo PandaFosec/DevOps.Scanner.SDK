@@ -1,13 +1,19 @@
 """SDK contract sanity — the exact shape adapters + the orchestrator rely on."""
+
 import scanner_sdk as sdk
 
 
 def test_dataclasses_constructible():
-    meta = sdk.EngineMeta(key="zap", name="OWASP ZAP", profiles=("baseline",),
-                          dd_scan_type="ZAP Scan", dd_artifact="report.json")
+    meta = sdk.EngineMeta(
+        key="zap",
+        name="OWASP ZAP",
+        profiles=("baseline",),
+        dd_scan_type="ZAP Scan",
+        dd_artifact="report.json",
+    )
     assert meta.key == "zap"
     req = sdk.ScanRequest(target="https://x", profile="baseline", out_dir="/tmp")
-    assert req.options == {}                       # default_factory
+    assert req.options == {}  # default_factory
     assert sdk.RunHandle(id="1").extra == {}
     assert sdk.Progress(finished=True, error=[], raw={}).error == []
     c = sdk.Collection(summary={}, process={})
@@ -15,12 +21,20 @@ def test_dataclasses_constructible():
 
 
 def test_registry_roundtrip():
-    class FakeEngine:                              # structurally an Engine
+    class FakeEngine:  # structurally an Engine
         meta = sdk.EngineMeta("fake", "Fake", ("p",), "T", "a.json")
-        def healthcheck(self): return "ok"
-        def run(self, req): return sdk.RunHandle("1")
-        def poll(self, h): return sdk.Progress(True, [], {})
-        def collect(self, h, req, progress): return sdk.Collection({}, {})
+
+        def healthcheck(self):
+            return "ok"
+
+        def run(self, req):
+            return sdk.RunHandle("1")
+
+        def poll(self, h):
+            return sdk.Progress(True, [], {})
+
+        def collect(self, h, req, progress):
+            return sdk.Collection({}, {})
 
     e = FakeEngine()
     sdk.register(e)
@@ -30,14 +44,14 @@ def test_registry_roundtrip():
 
 def test_risk_code():
     assert sdk.risk_code("High") == 3
-    assert sdk.risk_code("  critical ") == 4       # case-insensitive + trimmed
-    assert sdk.risk_code("nonsense") == 3          # default
+    assert sdk.risk_code("  critical ") == 4  # case-insensitive + trimmed
+    assert sdk.risk_code("nonsense") == 3  # default
     assert sdk.RISK_NAMES[0] == "Informational"
     assert sdk.RISK_CODES["medium"] == 2
 
 
 def test_settings_protocol_is_structural():
-    class FakeSettings:                            # a test double, no orchestrator dep
+    class FakeSettings:  # a test double, no orchestrator dep
         zap_base_url = "http://zap:8080"
         zap_api_key = ""
         templates_dir = "/t"
@@ -45,7 +59,7 @@ def test_settings_protocol_is_structural():
         plan_timeout_min = 60
         spider_max_duration_min = 5
 
-    s: sdk.Settings = FakeSettings()               # structural — satisfies the Protocol
+    s: sdk.Settings = FakeSettings()  # structural — satisfies the Protocol
     assert s.zap_base_url.startswith("http")
 
 
@@ -53,8 +67,9 @@ def test_settings_proxy_injection():
     import pytest
 
     import scanner_sdk.config as cfg
-    cfg._SettingsProxy._impl = None                 # reset: unconfigured
-    with pytest.raises(RuntimeError):              # reading before configure is an error
+
+    cfg._SettingsProxy._impl = None  # reset: unconfigured
+    with pytest.raises(RuntimeError):  # reading before configure is an error
         _ = sdk.settings.zap_base_url
 
     class Fake:
@@ -65,6 +80,6 @@ def test_settings_proxy_injection():
         plan_timeout_min = 60
         spider_max_duration_min = 5
 
-    sdk.configure_settings(Fake())                 # host installs concrete settings
+    sdk.configure_settings(Fake())  # host installs concrete settings
     assert sdk.settings.zap_base_url == "http://zap:8080"
     assert sdk.settings.plan_timeout_min == 60
