@@ -1,6 +1,10 @@
 # DevOps.Scanner.SDK
 
-![tests](https://github.com/PandaFosec/DevOps.Scanner.SDK/actions/workflows/ci.yml/badge.svg) ![python](https://img.shields.io/badge/python-3.14-blue)
+<!-- BADGES:START -->
+[![CI (GitHub)](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)](https://github.com/PandaFosec/DevOps.Scanner.SDK/actions/workflows/ci.yml)
+<!-- BADGES:END -->
+
+![python](https://img.shields.io/badge/python-3.14-blue)
 
 The **shared scanner-engine plugin contract** for the DevOps security-scan stack.
 
