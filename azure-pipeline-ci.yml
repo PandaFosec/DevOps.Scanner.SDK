@@ -1,11 +1,14 @@
-# CI Pipeline - TEST
-#   run the developped tests after a push to master
+# CI Pipeline — parity with the GitHub Actions ci.yml
+#   (uv.lock check + ruff lint/format + pytest where a suite exists).
 
-name: python_run_tests-$(Date:yyyyMMdd)$(rev:.r)
-
-# Run push to master.
+name: python_ci-$(Date:yyyyMMdd)$(rev:.r)
 
 trigger:
+  branches:
+    include:
+      - master
+
+pr:
   branches:
     include:
       - master
@@ -14,8 +17,8 @@ pool:
   vmImage: ubuntu-latest
 
 jobs:
-  - job: pytest
-    displayName: pytest
+  - job: ci
+    displayName: ci
     steps:
       - checkout: self
 
@@ -27,5 +30,10 @@ jobs:
 
           mise trust
           mise install
-          mise exec  -- uv run pytest -q
-        displayName: Run pytest with mise and uv
+
+          mise exec -- uv lock --check
+          mise exec -- uv sync --frozen
+          mise exec -- uv run ruff check .
+          mise exec -- uv run ruff format --check .
+          mise exec -- uv run pytest -q
+        displayName: Lint and test (mise + uv)
