@@ -1,0 +1,53 @@
+# CD Pipeline - DEPENDENCY UPDATES
+#   daily, informational report of outdated Python dependencies (never fails).
+#   Register this file as a separate pipeline in Azure DevOps.
+
+name: dependency_updates-$(Date:yyyyMMdd)$(rev:.r)
+
+# Scheduled only — not triggered by pushes/PRs.
+trigger: none
+pr: none
+
+schedules:
+  - cron: "0 6 * * *"
+    displayName: Daily 06:00 UTC dependency check
+    branches:
+      include:
+        - master
+    always: true
+
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+  - job: outdated
+    displayName: outdated
+    steps:
+      - checkout: self
+
+      - bash: |
+          set -euo pipefail
+
+          curl -fsSL https://mise.run | sh
+          export PATH="$HOME/.local/bin:$PATH"
+
+          mise trust
+          mise install
+          mise exec -- uv sync --frozen
+
+          SUMMARY="$BUILD_ARTIFACTSTAGINGDIRECTORY/deps.md"
+          {
+            echo "## Dependency updates (uv)"
+            echo ""
+            echo "### Actionable: upgrades uv would apply within our constraints"
+            echo '```'
+            mise exec -- uv lock --upgrade --dry-run 2>&1 || true
+            echo '```'
+            echo ""
+            echo "### FYI: newest on PyPI (may be blocked by our version pins)"
+            echo '```'
+            mise exec -- uv pip list --outdated --exclude-editable 2>&1 || true
+            echo '```'
+          } > "$SUMMARY"
+          echo "##vso[task.uploadsummary]$SUMMARY"
+        displayName: Report available updates (uv)

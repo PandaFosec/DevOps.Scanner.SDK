@@ -1,0 +1,31 @@
+# CI Pipeline - TEST
+#   run the developped tests after a push to master
+
+name: python_run_tests-$(Date:yyyyMMdd)$(rev:.r)
+
+# Run push to master.
+
+trigger:
+  branches:
+    include:
+      - master
+
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+  - job: pytest
+    displayName: pytest
+    steps:
+      - checkout: self
+
+      - bash: |
+          set -euo pipefail
+
+          curl -fsSL https://mise.run | sh
+          export PATH="$HOME/.local/bin:$PATH"
+
+          mise trust
+          mise install
+          mise exec  -- uv run pytest -q
+        displayName: Run pytest with mise and uv
