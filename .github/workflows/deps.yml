@@ -1,0 +1,41 @@
+name: Dependency updates
+
+# Reports outdated Python dependencies. Runs daily and on demand; it is
+# informational (never fails the build) — read the results in the run's
+# Summary. For automated update PRs, enable Dependabot instead.
+on:
+  schedule:
+    - cron: "0 6 * * *" # daily at 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  outdated:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jdx/mise-action@v2
+
+      - name: Install dependencies (locked)
+        run: uv sync --frozen --python "$(mise which python)"
+
+      - name: Report available updates (uv)
+        run: |
+          {
+            echo "## Dependency updates (uv)"
+            echo ""
+            echo "### Actionable: upgrades uv would apply within our constraints"
+            echo "\`uv lock --upgrade --dry-run\`"
+            echo ""
+            echo '```'
+            uv lock --upgrade --dry-run 2>&1 || true
+            echo '```'
+            echo ""
+            echo "### FYI: newest on PyPI (may be blocked by our version pins)"
+            echo "\`uv pip list --outdated\`"
+            echo ""
+            echo '```'
+            uv pip list --outdated --exclude-editable 2>&1 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
