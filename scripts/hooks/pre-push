@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Guard: make sure the README CI badges are in sync before pushing.
+#
+# Runs scripts/gen-badges.sh against a TEMP copy of the README (never touches
+# the real file) and, if the result differs from what's committed, blocks the
+# push so you can regenerate + commit. Badge inputs come from `.env`
+# (AZURE_DEVOPS_ORG / AZURE_DEVOPS_PROJECT); since `.env` is gitignored, this
+# check is skipped when it's absent (fail-open) so a fresh clone or CI never
+# gets blocked or has its badges rewritten.
+#
+# Enable per clone with:  git config core.hooksPath scripts/hooks
+set -euo pipefail
+
+root="$(git rev-parse --show-toplevel)"
+gen="$root/scripts/gen-badges.sh"
+readme="$root/README.md"
+
+[ -x "$gen" ] || exit 0
+[ -f "$readme" ] || exit 0
+# Badges depend on .env; without it we can't validate — don't block.
+[ -f "$root/.env" ] || exit 0
+
+tmp="$(mktemp)"
+trap 'rm -f "$tmp"' EXIT
+cp "$readme" "$tmp"
+
+# Regenerate into the temp copy only; leave the working README untouched.
+( cd "$root" && bash "$gen" "$tmp" >/dev/null 2>&1 ) || exit 0
+
+if ! diff -q "$readme" "$tmp" >/dev/null 2>&1; then
+  echo "pre-push: README CI badges are out of date. Regenerate and commit:" >&2
+  echo "            scripts/gen-badges.sh && git add README.md && git commit -m 'docs: sync badges'" >&2
+  exit 1
+fi
+
+exit 0

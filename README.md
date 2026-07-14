@@ -1,7 +1,7 @@
 # DevOps.Scanner.SDK
 
 <!-- BADGES:START -->
-[![CI (GitHub)](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)](https://github.com/PandaFosec/DevOps.Scanner.SDK/actions/workflows/ci.yml)
+[![CI (GitHub)](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)](https://github.com/PandaFosec/DevOps.Scanner.SDK/actions/workflows/ci.yml) ![Python](https://img.shields.io/badge/python-3.14-3776AB?logo=python&logoColor=white)
 <!-- BADGES:END -->
 
 ![python](https://img.shields.io/badge/python-3.14-blue)
