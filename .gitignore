@@ -7,3 +7,6 @@ __pycache__/
 dist/
 *.egg-info/
 .github/
+.env
+*.env
+!*.env.template
